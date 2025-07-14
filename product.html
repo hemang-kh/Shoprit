@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Detail - SHOPRIT</title>
+  <link rel="stylesheet" href="styles/style.css" />
+  <!-- Poppins font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- ✅ Toast styling injected here -->
+  <style>
+    .message-box {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      color: white;
+      text-align: center;
+      z-index: 1000;
+      transition: all 0.3s ease-in-out;
+      opacity: 0;
+    }
+    .message-box.scale-100 {
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
+    }
+    .bg-green-500 { background-color: #22c55e; }
+    .bg-red-500 { background-color: #ef4444; }
+    .bg-orange-500 { background-color: #f97316; }
+    .bg-blue-500 { background-color: #3b82f6; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="container">
+      <a href="index.html" class="logo">SHOPRIT<span>.</span></a>
+      <nav class="main-nav">
+        <ul class="nav-list">
+          <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+          <li class="nav-item"><a href="index.html#products" class="nav-link">Products</a></li>
+          <li class="nav-item"><a href="#" class="nav-link current">Details</a></li>
+          <li class="nav-item cart-icon">
+            <a href="products.html" class="btn btn-secondary">Back to Products</a>
+            <a href="cart.html" class="nav-link">
+              🛒 Cart <span class="cart-count" id="cart-item-count">(0)</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <button class="menu-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Product Detail Section -->
+  <section class="product-detail-section section-padding">
+    <div class="container">
+      <div id="product-detail-container" class="product-detail-content reveal-on-scroll">
+        <p class="loading-message text-center">Loading product details...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Customer Reviews Section -->
+  <section class="section-padding review-section">
+    <div class="container">
+      <h2 class="text-2xl font-bold mb-6">Customer Reviews</h2>
+
+      <div id="review-list" class="space-y-4 mb-8">
+        <!-- Reviews will be rendered here -->
+      </div>
+
+      <form id="review-form" class="space-y-4">
+              <!-- Your Name Row -->
+              <div class="review-row">
+                <label for="reviewer-name" class="review-label">Your Name</label>
+                <input type="text" id="reviewer-name" placeholder="Enter your name" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-color" required>
+              </div>
+
+              <!-- Your Rating Row -->
+              <div class="review-row">
+                <label class="review-label">Your Rating</label>
+                <div id="star-rating" class="flex items-center space-x-1 star-rating-wrapper">
+                  <input type="radio" id="star5" name="rating" value="5" class="hidden" /><label for="star5" class="star text-4xl cursor-pointer text-gray-300 hover:text-yellow-400 transition-colors duration-200">★</label>
+                  <input type="radio" id="star4" name="rating" value="4" class="hidden" /><label for="star4" class="star text-4xl cursor-pointer text-gray-300 hover:text-yellow-400 transition-colors duration-200">★</label>
+                  <input type="radio" id="star3" name="rating" value="3" class="hidden" /><label for="star3" class="star text-4xl cursor-pointer text-gray-300 hover:text-yellow-400 transition-colors duration-200">★</label>
+                  <input type="radio" id="star2" name="rating" value="2" class="hidden" /><label for="star2" class="star text-4xl cursor-pointer text-gray-300 hover:text-yellow-400 transition-colors duration-200">★</label>
+                  <input type="radio" id="star1" name="rating" value="1" class="hidden" /><label for="star1" class="star text-4xl cursor-pointer text-gray-300 hover:text-yellow-400 transition-colors duration-200">★</label>
+                </div>
+                <div id="rating-error" class="text-red-500 text-sm mt-1"></div>
+              </div>
+
+              <!-- Your Review Row -->
+              <div class="review-row items-start"> <!-- Align items to start for textarea -->
+                <label for="review-text" class="review-label">Your Review</label>
+                <textarea id="review-text" rows="5" placeholder="Share your thoughts about the product..." class="review-textarea w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-color" required></textarea>
+              </div>
+
+              <!-- Media Upload -->
+              <div class="form-group"> <!-- Keeping this as form-group as it's a block with multiple sub-elements -->
+                <label for="review-media-upload" class="block text-gray-700 font-medium mb-2">Upload Photo or Video (Optional)</label>
+                <input type="file" id="review-media-upload" accept="image/*,video/*" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-color file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-color file:text-white hover:file:bg-secondary-color">
+                <div id="media-preview-container" class="mt-4 flex flex-wrap gap-4">
+                  <!-- Media preview will be displayed here -->
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Max file size: 5MB for images. Videos will not be stored persistently in this demo.</p>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-full">Submit Review</button>
+            </form>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col about-col">
+          <h3>SHOPRIT</h3>
+          <p>Your one-stop destination for quality products and exceptional service. We're passionate about what we do.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Connect With Us</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/shoprit.io/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+            <li><a href="https://www.instagram.com/hem.ang_12.0/" target="_blank" rel="noopener noreferrer">Instagram (private)</a></li>
+            <li><a href="https://www.linkedin.com/in/hemang-khatri-846b14325/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <span id="current-year"></span> SHOPRIT. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ✅ Optional: Live cart count on page load -->
+  <script>
+    const cartItemCountSpan = document.getElementById('cart-item-count');
+    function updateHeaderCartCount() {
+      const cart = JSON.parse(localStorage.getItem('shoprit_cart')) || [];
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      if (cartItemCountSpan) {
+        cartItemCountSpan.textContent = `(${totalItems})`;
+      }
+    }
+    window.addEventListener('cartUpdated', updateHeaderCartCount);
+    updateHeaderCartCount();
+  </script>
+
+  <!-- ✅ Scripts -->
+  <script src="scripts/cart.js"></script>
+  <script src="scripts/product.js"></script>
+</body>
+</html>

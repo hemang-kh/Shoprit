@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOPRIT - Forgot Password</title>
+    <!-- Link to Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to your existing main stylesheet -->
+    <link rel="stylesheet" href="styles/style.css">
+    <!-- Link to Google Fonts (Poppins, consistent with your site) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for message box (copied from your index.html) */
+        .message-box {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: white;
+            text-align: center;
+            z-index: 1000;
+            transition: all 0.3s ease-in-out;
+            opacity: 0;
+        }
+        .message-box.scale-100 {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+        .bg-green-500 { background-color: #22c55e; }
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-orange-500 { background-color: #f97316; }
+        .bg-blue-500 { background-color: #3b82f6; }
+
+        /* Basic form styling to align with your site's aesthetic (similar to login/register) */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8fafc; /* Light gray background */
+            padding: 20px;
+        }
+        .auth-card {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .auth-card h2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 2.25rem; /* 36px */
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #6366f1; /* Primary color from your site */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .btn-auth {
+            width: 100%;
+            padding: 12px;
+            background-color: #6366f1; /* Primary color */
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.125rem; /* 18px */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+        }
+        .btn-auth:hover {
+            background-color: #4f46e5; /* Darker shade on hover */
+        }
+        .auth-links {
+            margin-top: 25px;
+            font-size: 0.95rem;
+            color: #666;
+        }
+        .auth-links a {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .auth-links a:hover {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+        .error-message {
+            color: #ef4444; /* Red color for errors */
+            font-size: 0.875rem; /* 14px */
+            margin-top: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Header (copy from index.html to keep consistent navigation) -->
+    <header class="main-header">
+        <div class="container">
+            <a href="index.html" class="logo">SHOPRIT<span>.</span></a>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="products.html" class="nav-link">Products</a></li>
+                    <li class="nav-item account-icon">
+                        <a href="account.html" class="nav-link" id="accountLink">
+                            👤 Account <span id="accountStatus"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item cart-icon">
+                        <a href="cart.html" class="nav-link">
+                            🛒 Cart <span class="cart-count" id="cart-item-count">(0)</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <h2 class="text-2xl font-bold mb-6">Forgot Your Password?</h2>
+            
+            <!-- Step 1: Enter Email -->
+            <form id="forgotPasswordEmailForm">
+                <p class="text-gray-600 mb-4">Enter your email address to reset your password.</p>
+                <div class="form-group">
+                    <label for="forgotEmail">Email Address</label>
+                    <input type="email" id="forgotEmail" placeholder="your@example.com" required>
+                    <div class="error-message" id="forgotEmailError"></div>
+                </div>
+                <button type="submit" class="btn-auth">Send Reset Link (Simulated)</button>
+            </form>
+
+            <!-- Step 2: Set New Password (initially hidden) -->
+            <form id="resetPasswordForm" style="display: none;">
+                <p class="text-gray-600 mb-4">Please enter your new password.</p>
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" placeholder="********" required>
+                    <div class="error-message" id="newPasswordError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewPassword">Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" placeholder="********" required>
+                    <div class="error-message" id="confirmNewPasswordError"></div>
+                </div>
+                <button type="submit" class="btn-auth">Reset Password</button>
+            </form>
+
+            <div class="auth-links mt-6">
+                <p>Remember your password? <a href="login.html">Login Here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (copy from index.html to keep consistent footer) -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col about-col">
+                    <h3>SHOPRIT</h3>
+                    <p>Your one-stop destination for quality products and exceptional service. We're passionate about what we do.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li> 
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect With Us</h4>
+                    <ul class="social-links flex space-x-4 mt-2">
+                        <li>
+                            <a href="https://www.instagram.com/shoprit.io/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-instagram">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                                <span class="sr-only">Instagram</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/in/hemang-khatri-846b14325/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin">
+                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                                <span class="sr-only">LinkedIn</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                                <span class="sr-only">Facebook</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year"></span> SHOPRIT. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Link to your main script.js for shared functions and new auth logic -->
+    <script src="scripts/script.js"></script>
+</body>
+</html>

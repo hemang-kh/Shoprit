@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All Products - SHOPRIT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Layout */
+        .section-padding {
+            padding: 4rem 0; /* Consistent vertical padding for sections */
+        }
+        .container {
+            max-width: 1200px; /* Max width for content, centered */
+            margin: 0 auto;
+            padding: 0 1rem; /* Horizontal padding */
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem; /* Space between cards */
+            margin-top: 3rem;
+            justify-items: center; /* Center cards within their grid cells */
+        }
+
+        /* Product Card - The visual box */
+        /* Note: The <a> tag now wraps this, so some styles like max-width are here */
+        .product-card {
+            background-color: var(--bg-white);
+            border-radius: 16px;
+            box-shadow: 0 8px 25px var(--shadow-light);
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%; /* Important for equal height cards in grid */
+            width: 100%;
+            max-width: 320px; /* Constrain individual card width */
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px var(--shadow-medium);
+        }
+
+        /* Product Image Container */
+        .product-image-container {
+            width: 100%;
+            height: 240px; /* Fixed height for image area */
+            overflow: hidden;
+            position: relative; /* Needed for quick view overlay positioning */
+        }
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures images fill the container without distortion */
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-image {
+            transform: scale(1.05); /* Slight zoom on hover */
+        }
+
+        /* Quick View Overlay */
+        .quick-view-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.3s ease;
+        }
+        .product-card:hover .quick-view-overlay {
+            opacity: 1; /* Show on card hover */
+        }
+        .quick-view-btn {
+            background-color: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .quick-view-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Product Info Area */
+        .product-info {
+            padding: 1rem 1.5rem 1rem; /* Consistent padding */
+            flex-grow: 1; /* Allows info section to take up available space */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            min-height: 2.8rem; /* Ensure consistent height for names */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .product-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1.2rem;
+        }
+
+        /* Product Actions (Buttons) */
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            padding: 0 1.5rem 1.5rem; /* Padding at the bottom */
+            margin-top: auto; /* Pushes buttons to the bottom if product info grows */
+        }
+        .btn {
+            display: block;
+            padding: 0.7rem 1.4rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-decoration: none; /* Crucial for links that are styled as buttons */
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: var(--text-dark);
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Reveal-on-scroll animations */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Modal Overlay for Quick View */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            backdrop-filter: blur(5px); /* Modern blur effect */
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: var(--bg-white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            width: 700px; /* Max width for quick view content */
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .close-modal-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-dark);
+            transition: color 0.3s ease;
+        }
+        .close-modal-btn:hover {
+            color: var(--primary-color);
+        }
+
+        /* Quick View Details Grid (inside modal) */
+        .quick-view-details-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+        .quick-view-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain; /* Use contain to see full image, cover if you want it to fill */
+            border-radius: 8px;
+        }
+        .quick-view-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            text-align: left;
+        }
+        .quick-view-info h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .quick-view-info .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .quick-view-info p {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .quick-view-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        .quick-view-actions .btn {
+            flex-grow: 1; /* Buttons expand to fill space */
+            padding: 1rem;
+            font-size: 1rem;
+        }
+
+        /* Mobile Responsiveness for Quick View */
+        @media (min-width: 768px) {
+            .quick-view-details-grid {
+                flex-direction: row;
+            }
+            .quick-view-image {
+                width: 40%;
+                min-width: 250px;
+                max-height: none; /* Remove max height for desktop */
+            }
+            .quick-view-info {
+                flex-grow: 1;
+            }
+            .quick-view-actions {
+                flex-direction: row;
+            }
+        }
+        
+        /* Main Header/Navigation Styles (assuming from style.css but placed here for full context) */
+        .main-header {
+            background-color: var(--bg-white);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        .main-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-decoration: none;
+        }
+        .logo span {
+            color: var(--primary-color);
+        }
+        .main-nav .nav-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .main-nav .nav-item {
+            margin-left: 2rem;
+        }
+        .main-nav .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 1.05rem;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .main-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        .main-nav .nav-link:hover::after,
+        .main-nav .nav-link.current::after {
+            width: 100%;
+        }
+        .main-nav .nav-link:hover,
+        .main-nav .nav-link.current {
+            color: var(--primary-color);
+        }
+
+        /* Cart Icon */
+        .cart-icon .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .cart-icon .cart-count {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none; /* Hidden on desktop */
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 0;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: var(--text-dark);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        /* Mobile menu toggle animation */
+        .menu-toggle.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        /* Mobile Navigation Styles */
+        @media (max-width: 768px) {
+            .main-nav {
+                position: fixed;
+                top: 0;
+                right: -100%; /* Off-screen by default */
+                width: 280px;
+                height: 100%;
+                background-color: var(--bg-white);
+                box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+                padding-top: 5rem;
+                transition: right 0.4s ease-in-out;
+                z-index: 1000;
+                display: block; /* Override display flex for mobile */
+            }
+            .main-nav.active {
+                right: 0; /* Slide in */
+            }
+            .main-nav .nav-list {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.5rem;
+            }
+            .main-nav .nav-item {
+                margin: 0 0 1.2rem 0;
+                width: 100%;
+            }
+            .main-nav .nav-link {
+                display: block;
+                padding: 0.8rem 1rem;
+                width: 100%;
+                border-radius: 8px;
+            }
+            .main-nav .nav-link:hover,
+            .main-nav .nav-link.current {
+                background-color: var(--bg-light);
+            }
+            .main-nav .nav-link::after {
+                display: none; /* Hide underline on mobile menu */
+            }
+            .menu-toggle {
+                display: flex; /* Show on mobile */
+            }
+        }
+
+        /* New styles for filter controls */
+        .filter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem; /* Space before product grid */
+            align-items: center;
+        }
+
+        .filter-controls input[type="text"],
+        .filter-controls select {
+            padding: 0.8rem 1.2rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%; /* Full width on smaller screens */
+            max-width: 400px; /* Max width for input/select */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .filter-controls input[type="text"]:focus,
+        .filter-controls select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+        }
+
+        @media (min-width: 768px) {
+            .filter-controls {
+                flex-direction: row;
+                justify-content: center;
+                gap: 2rem;
+            }
+            .filter-controls input[type="text"],
+            .filter-controls select {
+                width: auto; /* Revert to auto width for flex items */
+                flex-grow: 1; /* Allow them to grow */
+                max-width: 300px; /* Adjust max width for desktop */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            <a href="index.html" class="logo">SHOPRIT<span>.</span></a>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="products.html" class="nav-link current">All Products</a></li>
+                    <li class="nav-item"><a href="index.html#about" class="nav-link">About Us</a></li>
+                    <li class="nav-item"><a href="mailto:your.email@gmail.com" class="nav-link">Contact</a></li>
+                    <li class="nav-item cart-icon">
+                        <a href="cart.html" class="nav-link">
+                            🛒 Cart <span class="cart-count" id="cart-item-count">(0)</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main class="section-padding">
+        <div class="container">
+            <h2 class="section-title text-center reveal-on-scroll">Our Products</h2>
+            <p class="section-subtitle text-center reveal-on-scroll">Explore our full collection of amazing items.</p>
+
+            <div id="filter-controls" class="filter-controls reveal-on-scroll">
+                <input type="text" id="search-input" placeholder="Search products by name or description...">
+                <select id="category-filter">
+                    <option value="all">All Categories</option>
+                    <option value="accessories">Accessories</option>
+                    <option value="home-decor">Home Decor</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="bags">Bags</option>
+                    </select>
+            </div>
+            <div id="all-products-list" class="product-grid reveal-on-scroll">
+                </div>
+        </div>
+    </main>
+
+    <div id="quick-view-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal-btn">&times;</button>
+            <div id="quick-view-details" class="quick-view-details-grid">
+                </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col about-col">
+                    <h3>SHOPRIT</h3>
+                    <p>Your one-stop destination for quality products and exceptional service. We're passionate about what we do.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect With Us</h4>
+                    <ul>
+                        <li><a href="https://www.instagram.com/shoprit.io/" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+                        <li><a href="https://www.instagram.com/hem.ang_12.0/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                        <li><a href="https://www.linkedin.com/in/hemang-khatri-846b14325/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year"></span> SHOPRIT. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const allProductsListContainer = document.getElementById('all-products-list');
+            const quickViewModal = document.getElementById('quick-view-modal');
+            const closeQuickViewBtn = document.querySelector('.close-modal-btn');
+            const quickViewDetails = document.getElementById('quick-view-details');
+            const currentYearSpan = document.getElementById('current-year');
+
+            // NEW: Get references to search and category elements
+            const searchInput = document.getElementById('search-input');
+            const categoryFilter = document.getElementById('category-filter');
+
+
+            // --- PRODUCT DATA (Full list) ---
+            let products = [];
+            try {
+                const storedProducts = localStorage.getItem('productsData');
+                if (storedProducts) {
+                    products = JSON.parse(storedProducts);
+                    console.log("products.html: Products array loaded from localStorage:", products.length, "items.");
+                } else {
+                    // Fallback if localStorage is empty or fails
+                    products = [
+                        { id: 1, name: "Handmade Necklace", price: 499.00, image: "images/necklace.jpg", description: "A beautifully handcrafted necklace, perfect for any occasion. Made with ethically sourced materials and exquisite attention to detail, it adds a touch of elegance to your everyday look or special events.", category: "accessories" },
+                        { id: 2, name: "Wooden Wall Art", price: 899.00, image: "images/wall-art.jpg", description: "Unique wooden wall art, carved from sustainable timber. This rustic yet modern piece brings nature's beauty into your home, perfect for living rooms, bedrooms, or offices. Easy to hang and a true conversation starter.", category: "home-decor" },
+                        { id: 3, name: "Cotton Tote Bag", price: 299.00, image: "images/tote-bag.jpg", description: "An eco-friendly and stylish cotton tote bag, ideal for shopping, books, or daily essentials. Durable, reusable, and spacious, it's a perfect blend of practicality and fashion for conscious consumers.", category: "accessories" },
+                        { id: 4, name: "Wireless Earbuds", price: 1299.00, image: "images/earbuds.jpg", description: "Immerse yourself in crystal-clear audio with these comfortable wireless earbuds. Featuring long battery life, a snug fit, and intuitive touch controls, they are perfect for workouts, commutes, or just relaxing.", category: "electronics" },
+                        { id: 5, name: "Ceramic Coffee Mug", price: 149.00, image: "images/ceramic coffee mug.jpg", description: "Start your day right with this elegantly designed ceramic coffee mug. Its ergonomic handle and smooth finish provide a comfortable grip, making every sip of your favorite beverage a delightful experience.", category: "home-decor" },
+                        { id: 6, name: "Denim Jacket", price: 1999.00, image: "images/denim-jacket.jpg", description: "A classic denim jacket that never goes out of style. Made from premium quality denim, it's durable, comfortable, and perfect for layering over any outfit for a timeless casual look.", category: "clothing" },
+                        { id: 7, name: "Smart LED Bulb", price: 499.00, image: "images/led-bulb.jpg", description: "Control your lighting with your smartphone or voice commands using this smart LED bulb. Customize colors, brightness, and schedules to create the perfect ambiance for any mood or occasion.", category: "electronics" },
+                        { id: 8, name: "Yoga Mat", price: 799.00, image: "images/yoga-mat.jpg", description: "Achieve perfect balance and comfort during your yoga sessions with this non-slip, eco-friendly yoga mat. Its superior grip and cushioning provide the ideal foundation for all your poses.", category: "accessories" },
+                        { id: 9, name: "Portable Bluetooth Speaker", price: 1599.00, image: "images/speaker.jpg", description: "Take your music anywhere with this compact and powerful portable Bluetooth speaker. Delivers rich, clear sound with deep bass, and boasts a long-lasting battery for endless hours of enjoyment.", category: "electronics" },
+                        { id: 10, name: "Scented Candles Set", price: 599.00, image: "images/candle.jpg", description: "Create a serene and inviting atmosphere with this set of beautifully scented candles. Crafted from natural waxes and essential oils, they offer long-lasting fragrance and a calming glow.", category: "home-decor" },
+                        { id: 11, name: "Running Shoes", price: 2499.00, image: "images/running-shoes.jpg", description: "Engineered for performance and comfort, these running shoes provide optimal support and cushioning. Lightweight and breathable, they are designed to enhance your running experience.", category: "clothing" },
+                        { id: 12, name: "Leather Wallet", price: 699.00, image: "images/leather Wallet.jpg", description: "A sleek and durable leather wallet, designed for both style and functionality. Features multiple card slots, a spacious bill compartment, and a compact design for everyday carry.", category: "accessories" },
+                        { id: 13, name: "Desk Organizer", price: 449.00, image: "images/desk-organizer.jpg", description: "Keep your workspace tidy and efficient with this versatile desk organizer. Multiple compartments for pens, notes, and small accessories help declutter your desk and boost productivity.", category: "home-decor" },
+                        { id: 14, name: "Gaming Headset", price: 29999.00, image: "images/gaming-headset.jpg", description: "Immerse yourself in the game with this high-fidelity gaming headset. Featuring crisp audio, a noise-cancelling microphone, and comfortable ear cups for extended gaming sessions.", category: "electronics" },
+                        { id: 15, name: "Graphic T-Shirt", price: 349.00, image: "images/graphic-tshirt.jpg", description: "Express your unique style with this comfortable and trendy graphic t-shirt. Made from soft, breathable cotton, it's perfect for casual wear and making a statement.", category: "clothing" }
+                    ];
+                    localStorage.setItem('productsData', JSON.stringify(products));
+                    console.log("products.html: Products array initialized and saved to localStorage (fallback).");
+                }
+            } catch (e) {
+                console.error("products.html: Error loading products from localStorage:", e);
+                // Fallback to hardcoded if localStorage causes issues
+                products = [
+                    { id: 1, name: "Handmade Necklace", price: 499.00, image: "images/necklace.jpg", description: "A beautifully handcrafted necklace, perfect for any occasion. Made with ethically sourced materials and exquisite attention to detail, it adds a touch of elegance to your everyday look or special events.", category: "accessories" },
+                    { id: 2, name: "Wooden Wall Art", price: 899.00, image: "images/wall-art.jpg", description: "Unique wooden wall art, carved from sustainable timber. This rustic yet modern piece brings nature's beauty into your home, perfect for living rooms, bedrooms, or offices. Easy to hang and a true conversation starter.", category: "home-decor" },
+                    { id: 3, name: "Cotton Tote Bag", price: 299.00, image: "images/tote-bag.jpg", description: "An eco-friendly and stylish cotton tote bag, ideal for shopping, books, or daily essentials. Durable, reusable, and spacious, it's a perfect blend of practicality and fashion for conscious consumers.", category: "accessories" },
+                    { id: 4, name: "Wireless Earbuds", price: 1299.00, image: "images/earbuds.jpg", description: "Immerse yourself in crystal-clear audio with these comfortable wireless earbuds. Featuring long battery life, a snug fit, and intuitive touch controls, they are perfect for workouts, commutes, or just relaxing.", category: "electronics" },
+                    { id: 5, name: "Ceramic Coffee Mug", price: 149.00, image: "images/ceramic coffee mug.jpg", description: "Start your day right with this elegantly designed ceramic coffee mug. Its ergonomic handle and smooth finish provide a comfortable grip, making every sip of your favorite beverage a delightful experience.", category: "home-decor" },
+                    { id: 6, name: "Denim Jacket", price: 1999.00, image: "images/denim-jacket.jpg", description: "A classic denim jacket that never goes out of style. Made from premium quality denim, it's durable, comfortable, and perfect for layering over any outfit for a timeless casual look.", category: "clothing" },
+                    { id: 7, name: "Smart LED Bulb", price: 499.00, image: "images/led-bulb.jpg", description: "Control your lighting with your smartphone or voice commands using this smart LED bulb. Customize colors, brightness, and schedules to create the perfect ambiance for any mood or occasion.", category: "electronics" },
+                    { id: 8, name: "Yoga Mat", price: 799.00, image: "images/yoga-mat.jpg", description: "Achieve perfect balance and comfort during your yoga sessions with this non-slip, eco-friendly yoga mat. Its superior grip and cushioning provide the ideal foundation for all your poses.", category: "accessories" },
+                    { id: 9, name: "Portable Bluetooth Speaker", price: 1599.00, image: "images/speaker.jpg", description: "Take your music anywhere with this compact and powerful portable Bluetooth speaker. Delivers rich, clear sound with deep bass, and boasts a long-lasting battery for endless hours of enjoyment.", category: "electronics" },
+                    { id: 10, name: "Scented Candles Set", price: 599.00, image: "images/candle.jpg", description: "Create a serene and inviting atmosphere with this set of beautifully scented candles. Crafted from natural waxes and essential oils, they offer long-lasting fragrance and a calming glow.", category: "home-decor" },
+                    { id: 11, name: "Running Shoes", price: 2499.00, image: "images/running-shoes.jpg", description: "Engineered for performance and comfort, these running shoes provide optimal support and cushioning. Lightweight and breathable, they are designed to enhance your running experience.", category: "clothing" },
+                    { id: 12, name: "Leather Wallet", price: 699.00, image: "images/leather Wallet.jpg", description: "A sleek and durable leather wallet, designed for both style and functionality. Features multiple card slots, a spacious bill compartment, and a compact design for everyday carry.", category: "accessories" },
+                    { id: 13, name: "Desk Organizer", price: 449.00, image: "images/desk-organizer.jpg", description: "Keep your workspace tidy and efficient with this versatile desk organizer. Multiple compartments for pens, notes, and small accessories help declutter your desk and boost productivity.", category: "home-decor" },
+                    { id: 14, name: "Gaming Headset", price: 29999.00, image: "images/gaming-headset.jpg", description: "Immerse yourself in the game with this high-fidelity gaming headset. Featuring crisp audio, a noise-cancelling microphone, and comfortable ear cups for extended gaming sessions.", category: "electronics" },
+                    { id: 15, name: "Graphic T-Shirt", price: 349.00, image: "images/graphic-tshirt.jpg", description: "Express your unique style with this comfortable and trendy graphic t-shirt. Made from soft, breathable cotton, it's perfect for casual wear and making a statement.", category: "clothing" }
+                ];
+                console.log("products.html: Products array loaded from hardcoded fallback due to localStorage error.");
+            }
+
+
+            // --- Intersection Observer for SCROLL ANIMATIONS ---
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    } else {
+                        // Optional: Remove 'is-visible' when out of view if you want repeatable animation
+                        // entry.target.classList.remove('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            // --- FUNCTIONS ---
+
+            // Function to update header cart count
+            function updateHeaderCartCount() {
+                const cartItemCountSpan = document.getElementById('cart-item-count');
+                if (cartItemCountSpan) {
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                    cartItemCountSpan.textContent = `(${totalItems})`;
+                }
+            }
+
+            // Function to display products on the "All Products" page
+            // MODIFIED: Now accepts a list of products to display, defaulting to the full list
+            function displayAllProducts(productsToShow = products) {
+                if (!allProductsListContainer) return;
+
+                allProductsListContainer.innerHTML = ''; // Clear existing products
+
+                if (productsToShow.length === 0) {
+                    allProductsListContainer.innerHTML = '<p class="text-center text-gray-600 col-span-full">No products found matching your criteria.</p>';
+                    return;
+                }
+
+                productsToShow.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.classList.add('product-card', 'reveal-on-scroll');
+                    productCard.innerHTML = `
+                        <div class="product-image-container">
+                            <img src="${product.image}" alt="${product.name}" class="product-image">
+                            <div class="quick-view-overlay">
+                                <button class="quick-view-btn" data-product-id="${product.id}">Quick View</button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">${product.name}</h3>
+                            <p class="product-price">$${product.price.toFixed(2)}</p>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
+                            <a href="product.html?id=${product.id}" class="btn btn-secondary">View Details</a>
+                        </div>
+                    `;
+                    allProductsListContainer.appendChild(productCard);
+                    observer.observe(productCard);
+                });
+                attachAllProductEventListeners(); // Attach listeners after rendering
+            }
+
+            // NEW FUNCTION: Filters and searches products
+            function filterAndSearchProducts() {
+                const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                const selectedCategory = categoryFilter ? categoryFilter.value : 'all';
+
+                const filtered = products.filter(product => {
+                    const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                                          (product.description && product.description.toLowerCase().includes(searchTerm));
+
+                    const matchesCategory = selectedCategory === 'all' || (product.category && product.category === selectedCategory);
+
+                    return matchesSearch && matchesCategory;
+                });
+                displayAllProducts(filtered); // Call displayAllProducts with the filtered list
+            }
+
+            // Function to show quick view modal for products.html
+            function showQuickViewModal(product) {
+                if (!product) { // Added null/undefined check for robustness
+                    console.error("products.html: Attempted to show quick view with invalid product data.");
+                    return;
+                }
+                if (quickViewModal && quickViewDetails) {
+                    quickViewDetails.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" class="quick-view-image">
+                        <div class="quick-view-info">
+                            <h3>${product.name}</h3>
+                            <p class="price">$${product.price.toFixed(2)}</p>
+                            <p>${product.description}</p>
+                            <div class="quick-view-actions">
+                                <button class="btn btn-primary add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
+                                <a href="product.html?id=${product.id}" class="btn btn-secondary">View Full Details</a>
+                            </div>
+                        </div>
+                    `;
+                    quickViewModal.classList.add('active'); // This line makes the modal visible
+                    document.body.style.overflow = 'hidden'; // FIX: Prevent background scrolling
+                    console.log("products.html: Body overflow set to hidden."); // Diagnostic log
+                } else {
+                    console.error("products.html: Quick view modal elements not found or quickViewDetails is null.");
+                }
+            }
+
+            // Function to close quick view modal for products.html
+            function closeQuickViewModal() {
+                if (quickViewModal) {
+                    quickViewModal.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore body scroll
+                    console.log("products.html: Body overflow restored."); // Diagnostic log
+                }
+            }
+
+            // Attach event listeners for dynamically added products on All Products page
+            function attachAllProductEventListeners() {
+                console.log("products.html: Attaching quick view and add to cart event listeners to product cards."); // Diagnostic log
+                allProductsListContainer.querySelectorAll('.quick-view-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent card click if it's also a link
+                        const productId = event.target.dataset.productId;
+                        console.log(`products.html: Quick View button clicked for product ID: ${productId}`); // Diagnostic log
+                        const product = products.find(p => p.id === parseInt(productId));
+                        if (product) {
+                            showQuickViewModal(product);
+                        } else {
+                            console.error("products.html: Product not found for Quick View (all products page):", productId);
+                        }
+                    });
+                });
+
+                allProductsListContainer.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent bubbling if card itself is a link
+                        const productId = event.target.dataset.productId;
+                        const product = products.find(p => p.id === parseInt(productId));
+                        if (product) {
+                            if (typeof window.addToCart === 'function') {
+                                window.addToCart(product);
+                                window.showMessage(`${product.name} added to cart!`, 'success');
+                            }
+                        }
+                    });
+                });
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // Close Quick View Modal on 'products.html'
+            if (closeQuickViewBtn) {
+                closeQuickViewBtn.addEventListener('click', closeQuickViewModal);
+            }
+
+            // Close modal when clicking outside the modal content on 'products.html'
+            if (quickViewModal) {
+                quickViewModal.addEventListener('click', (event) => {
+                    if (event.target === quickViewModal) {
+                        closeQuickViewModal();
+                    }
+                });
+            }
+
+            // Add to cart functionality for Quick View Modal's add to cart button on 'products.html'
+            if (quickViewDetails) {
+                quickViewDetails.addEventListener('click', (event) => {
+                    const addToCartBtn = event.target.closest('.add-to-cart-btn');
+                    if (addToCartBtn && addToCartBtn.closest('#quick-view-details')) { // Ensure it's the modal's button
+                        event.preventDefault(); // Prevent any default action
+                        event.stopPropagation(); // Stop event from bubbling up
+
+                        const productId = parseInt(addToCartBtn.dataset.productId);
+                        const productToAdd = products.find(p => p.id === productId);
+                        if (productToAdd) {
+                            if (typeof window.addToCart === 'function') { // Check if addToCart exists
+                                window.addToCart(productToAdd);
+                                // Using window.showMessage assuming it's available from cart.js
+                                if (typeof window.showMessage === 'function') {
+                                    window.showMessage(`${productToAdd.name} added to cart!`, 'success');
+                                } else {
+                                    alert(`${productToAdd.name} added to cart!`); // Fallback if showMessage not found
+                                }
+                                closeQuickViewModal(); // Close modal after adding to cart
+                            } else {
+                                console.error("products.html: addToCart function not found. Is cart.js loaded correctly?");
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Set current year in footer
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+
+            // Event listeners for search and category filter (MODIFIED / ADDED)
+            if (searchInput) {
+                searchInput.addEventListener('input', filterAndSearchProducts);
+            }
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', filterAndSearchProducts);
+            }
+
+
+            // Initial display of products on page load (will now apply any filters if pre-set)
+            filterAndSearchProducts(); // Call this instead of displayAllProducts directly to apply filters on load
+            console.log("products.html: Initial filterAndSearchProducts called to display products.");
+
+            // Observe existing reveal-on-scroll elements
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Update cart count on load
+            updateHeaderCartCount();
+
+            // Mobile navigation toggle
+            const menuToggle = document.querySelector('.menu-toggle');
+            const mainNav = document.querySelector('.main-nav');
+
+            if (menuToggle && mainNav) {
+                menuToggle.addEventListener('click', () => {
+                    mainNav.classList.toggle('active');
+                    menuToggle.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

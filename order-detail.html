@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOPRIT - Order Details</title>
+    <!-- Link to Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to your existing main stylesheet -->
+    <link rel="stylesheet" href="styles/style.css">
+    <!-- Link to Google Fonts (Poppins, consistent with your site) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for message box (copied from your index.html) */
+        .message-box {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: white;
+            text-align: center;
+            z-index: 1000;
+            transition: all 0.3s ease-in-out;
+            opacity: 0;
+        }
+        .message-box.scale-100 {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+        .bg-green-500 { background-color: #22c55e; }
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-orange-500 { background-color: #f97316; }
+        .bg-blue-500 { background-color: #3b82f6; }
+
+        /* Order Detail Page Specific Styling */
+        .order-detail-container {
+            min-height: calc(100vh - 120px);
+            background-color: #f0f2f5;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .order-detail-card {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 900px;
+        }
+        .order-detail-card h2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+        .order-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-item strong {
+            display: block;
+            font-size: 1.1rem;
+            color: #6366f1;
+            margin-bottom: 5px;
+        }
+        .summary-item span {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .order-products-list {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+        .product-item-detail {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .product-item-detail:last-child {
+            border-bottom: none;
+        }
+        .product-item-detail img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .product-info h3 {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        .product-info p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .product-info .price {
+            font-weight: 700;
+            color: #6366f1;
+            margin-top: 5px;
+        }
+
+        /* Tracking Status Styling */
+        .tracking-status {
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 30px;
+        }
+        .tracking-status h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .tracking-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            padding: 20px 0;
+            margin: 0 10px; /* Adjust margin for line */
+        }
+        .tracking-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #e0e0e0;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .tracking-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .tracking-dot {
+            width: 24px;
+            height: 24px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            font-size: 0.8rem;
+            border: 2px solid #e0e0e0;
+        }
+        .tracking-step.active .tracking-dot {
+            background-color: #6366f1;
+            border-color: #6366f1;
+            transform: scale(1.1);
+        }
+        .tracking-step.completed .tracking-dot {
+            background-color: #22c55e; /* Green for completed */
+            border-color: #22c55e;
+        }
+        .tracking-step-label {
+            font-size: 0.9rem;
+            color: #888;
+            transition: color 0.3s ease;
+            margin-top: 5px;
+        }
+        .tracking-step.active .tracking-step-label,
+        .tracking-step.completed .tracking-step-label {
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            .order-detail-card {
+                padding: 20px;
+            }
+            .order-detail-card h2 {
+                font-size: 1.75rem;
+            }
+            .tracking-steps {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0;
+                margin: 0;
+            }
+            .tracking-line {
+                display: none; /* Hide horizontal line on mobile */
+            }
+            .tracking-step {
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                width: 100%;
+                padding: 10px 0;
+                border-left: 4px solid #e0e0e0; /* Vertical line */
+                margin-bottom: 10px;
+                gap: 15px;
+                padding-left: 15px;
+            }
+            .tracking-step.active {
+                border-color: #6366f1;
+            }
+            .tracking-step.completed {
+                border-color: #22c55e;
+            }
+            .tracking-dot {
+                margin-left: -14px; /* Align dot with vertical line */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Header (copy from index.html to keep consistent navigation) -->
+    <header class="main-header">
+        <div class="container">
+            <a href="index.html" class="logo">SHOPRIT<span>.</span></a>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="products.html" class="nav-link">Products</a></li>
+                    <li class="nav-item account-icon">
+                        <a href="account.html" class="nav-link" id="accountLink">
+                            👤 Account <span id="accountStatus"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item cart-icon">
+                        <a href="cart.html" class="nav-link">
+                            🛒 Cart <span class="cart-count" id="cart-item-count">(0)</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main class="order-detail-container">
+        <div class="order-detail-card">
+            <a href="account.html#orders" class="text-primary-color hover:underline mb-4 inline-block">&larr; Back to Order History</a>
+            <h2 id="orderDetailTitle">Order #<span id="orderIdDisplay">...</span> Details</h2>
+
+            <div class="order-summary-grid">
+                <div class="summary-item">
+                    <strong>Order Date:</strong>
+                    <span id="orderDate">N/A</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Order Total:</strong>
+                    <span id="orderTotal">N/A</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Order Status:</strong>
+                    <span id="orderStatus">N/A</span>
+                </div>
+            </div>
+
+            <div class="order-products-list" id="orderProductsList">
+                <h3>Products in this Order:</h3>
+                <!-- Product items will be injected here -->
+                <p id="noProductsMessage" class="text-gray-600 mt-4" style="display: none;">No products found for this order.</p>
+            </div>
+
+            <div class="tracking-status">
+                <h3>Order Tracking</h3>
+                <div class="tracking-steps">
+                    <div class="tracking-line"></div>
+                    <div class="tracking-step" data-step="Ordered">
+                        <div class="tracking-dot">1</div>
+                        <span class="tracking-step-label">Ordered</span>
+                    </div>
+                    <div class="tracking-step" data-step="Shipped">
+                        <div class="tracking-dot">2</div>
+                        <span class="tracking-step-label">Shipped</span>
+                    </div>
+                    <div class="tracking-step" data-step="Out for Delivery">
+                        <div class="tracking-dot">3</div>
+                        <span class="tracking-step-label">Out for Delivery</span>
+                    </div>
+                    <div class="tracking-step" data-step="Delivered">
+                        <div class="tracking-dot">4</div>
+                        <span class="tracking-step-label">Delivered</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="cancelOrderBtn" class="btn bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-md shadow-md transition-colors duration-300">Cancel Order</button>
+                <button id="returnOrderBtn" class="btn bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-md shadow-md transition-colors duration-300 ml-4" style="display: none;">Return Order</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (copy from index.html to keep consistent footer) -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col about-col">
+                    <h3>SHOPRIT</h3>
+                    <p>Your one-stop destination for quality products and exceptional service. We're passionate about what we do.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect With Us</h4>
+                    <ul class="social-links flex space-x-4 mt-2">
+                        <li>
+                            <a href="https://www.instagram.com/shoprit.io/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-instagram">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                                <span class="sr-only">Instagram</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/in/hemang-khatri-846b14325/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin">
+                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                                <span class="sr-only">LinkedIn</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                                <span class="sr-only">Facebook</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year"></span> SHOPRIT. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Link to your main script.js for shared functions -->
+    <script src="scripts/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderIdDisplay = document.getElementById('orderIdDisplay');
+            const orderDate = document.getElementById('orderDate');
+            const orderTotal = document.getElementById('orderTotal');
+            const orderStatus = document.getElementById('orderStatus');
+            const orderProductsList = document.getElementById('orderProductsList');
+            const noProductsMessage = document.getElementById('noProductsMessage');
+            const trackingSteps = document.querySelectorAll('.tracking-step');
+            const cancelOrderBtn = document.getElementById('cancelOrderBtn');
+            const returnOrderBtn = document.getElementById('returnOrderBtn');
+
+            // Function to parse URL parameters
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                const results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            // Function to render order details
+            function renderOrderDetail() {
+                const orderId = getUrlParameter('orderId');
+                const loggedInUser = window.getLoggedInUser(); // Use global function from script.js
+
+                if (!loggedInUser || !loggedInUser.orders || loggedInUser.orders.length === 0) {
+                    showMessage('No orders found. Please log in.', 'error');
+                    setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+                    return;
+                }
+
+                const order = loggedInUser.orders.find(o => o.orderId === orderId);
+
+                if (!order) {
+                    showMessage('Order not found.', 'error');
+                    // Optionally redirect back to order history or dashboard
+                    setTimeout(() => { window.location.href = 'account.html#orders'; }, 1000);
+                    return;
+                }
+
+                orderIdDisplay.textContent = order.orderId;
+                orderDate.textContent = new Date(order.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                orderTotal.textContent = `₹${order.total.toFixed(2)}`;
+                orderStatus.textContent = order.status;
+
+                // Render products
+                if (order.items && order.items.length > 0) {
+                    noProductsMessage.style.display = 'none';
+                    orderProductsList.innerHTML = '<h3>Products in this Order:</h3>'; // Reset and add heading
+                    order.items.forEach(item => {
+                        const productDiv = document.createElement('div');
+                        productDiv.className = 'product-item-detail';
+                        productDiv.innerHTML = `
+                            <img src="${item.image}" alt="${item.name}" onerror="this.onerror=null; this.src='https://placehold.co/80x80/e2e8f0/6366f1?text=No+Image';" />
+                            <div class="product-info">
+                                <h3>${item.name}</h3>
+                                <p>Quantity: ${item.quantity}</p>
+                                <p class="price">₹${item.price.toFixed(2)}</p>
+                            </div>
+                        `;
+                        orderProductsList.appendChild(productDiv);
+                    });
+                } else {
+                    noProductsMessage.style.display = 'block';
+                    orderProductsList.innerHTML = ''; // Clear if no products
+                }
+
+                // Render tracking status
+                const trackingOrder = ['Ordered', 'Shipped', 'Out for Delivery', 'Delivered'];
+                let currentStepIndex = trackingOrder.indexOf(order.trackingStatus);
+
+                trackingSteps.forEach((step, index) => {
+                    step.classList.remove('active', 'completed');
+                    if (index <= currentStepIndex) {
+                        step.classList.add('completed');
+                    }
+                    if (index === currentStepIndex) {
+                        step.classList.add('active');
+                    }
+                });
+
+                // Show/hide Cancel/Return buttons based on status
+                if (order.status === 'Pending' || order.status === 'Shipped' || order.status === 'Out for Delivery') {
+                    cancelOrderBtn.style.display = 'inline-block';
+                } else {
+                    cancelOrderBtn.style.display = 'none';
+                }
+
+                if (order.status === 'Delivered') {
+                    returnOrderBtn.style.display = 'inline-block';
+                } else {
+                    returnOrderBtn.style.display = 'none';
+                }
+
+                // Handle Cancel Order
+                cancelOrderBtn.onclick = () => {
+                    if (confirm('Are you sure you want to cancel this order?')) {
+                        const updated = window.updateOrderStatus(loggedInUser.email, order.orderId, 'Cancelled');
+                        if (updated) {
+                            showMessage('Order cancelled successfully!', 'success');
+                            // Update the order object in the current view
+                            order.status = 'Cancelled';
+                            orderStatus.textContent = 'Cancelled';
+                            cancelOrderBtn.style.display = 'none'; // Hide cancel button
+                            returnOrderBtn.style.display = 'none'; // Hide return button too
+                            // Optionally, update dashboard counts (handled by account.html on load)
+                            // Redirect back to order history after a short delay
+                            setTimeout(() => { window.location.href = 'account.html#orders'; }, 1000);
+                        } else {
+                            showMessage('Failed to cancel order.', 'error');
+                        }
+                    }
+                };
+
+                // Handle Return Order (Simulated)
+                returnOrderBtn.onclick = () => {
+                    if (confirm('Are you sure you want to initiate a return for this order?')) {
+                        // In a real app, this would initiate a return process
+                        showMessage('Return initiated for this order. Please check your email for instructions.', 'info');
+                        returnOrderBtn.style.display = 'none'; // Hide return button
+                    }
+                };
+            }
+
+            // Initial render when the page loads
+            renderOrderDetail();
+        });
+    </script>
+</body>
+</html>

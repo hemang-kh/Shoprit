@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SHOPRIT - Discover Amazing Products</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom styles for message box (copied from your index.html) */
+        .message-box {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: white;
+            text-align: center;
+            z-index: 1000;
+            transition: all 0.3s ease-in-out;
+            opacity: 0;
+        }
+        .message-box.scale-100 {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+        .bg-green-500 { background-color: #22c55e; }
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-orange-500 { background-color: #f97316; }
+        .bg-blue-500 { background-color: #3b82f6; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Styles for the new authentication modal */
+        .auth-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000; /* Above everything else */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .auth-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .auth-modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .auth-modal-overlay.active .auth-modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .auth-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.2s ease;
+        }
+        .auth-modal-close:hover {
+            color: #333;
+        }
+        .auth-modal-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+        }
+        .auth-modal-tab {
+            flex: 1;
+            padding: 15px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #888;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: color 0.2s ease, border-color 0.2s ease;
+            text-align: center;
+        }
+        .auth-modal-tab.active {
+            color: #6366f1; /* Primary color */
+            border-color: #6366f1;
+        }
+        .auth-modal-form {
+            display: none; /* Hidden by default */
+        }
+        .auth-modal-form.active {
+            display: block; /* Shown when active */
+        }
+        /* Re-using form styles from login/register.html */
+        .auth-modal-content h2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 2rem; /* Slightly smaller for modal */
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .auth-modal-content .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .auth-modal-content .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        .auth-modal-content .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .auth-modal-content .form-group input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .auth-modal-content .btn-auth {
+            width: 100%;
+            padding: 12px;
+            background-color: #6366f1;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+        }
+        .auth-modal-content .btn-auth:hover {
+            background-color: #4f46e5;
+        }
+        .auth-modal-content .auth-links {
+            margin-top: 25px;
+            font-size: 0.95rem;
+            color: #666;
+            text-align: center;
+        }
+        .auth-modal-content .auth-links a {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .auth-modal-content .auth-links a:hover {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+        .auth-modal-content .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <a href="index.html" class="logo">SHOPRIT<span>.</span></a>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link current">Home</a></li>
+                    <li class="nav-item"><a href="#products" class="nav-link">Products</a></li>
+                    <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
+                    <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                    <li class="nav-item account-icon">
+                        <a href="account.html" id="accountStatus" class="text-primary-color hover:underline cursor-pointer">
+                           (Guest)
+                        </a>
+
+                    </li>
+                    <li class="nav-item cart-icon">
+                        <a href="cart.html" class="nav-link">
+                            🛒 Cart <span class="cart-count" id="cart-item-count">(0)</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content reveal-on-scroll">
+                <h1 class="hero-title">Discover Your Next <span class="highlight">Favorite</span> Product</h1>
+                <p class="hero-description">From handcrafted essentials to modern tech, find what moves you.</p>
+                <a href="#products" class="btn btn-primary scroll-to-products">Shop Now</a>
+            </div>
+        </div>
+    </section>
+    <section class="hero-carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="images/hero-slide1.jpg" alt="Discover New Arrivals">
+                <div class="carousel-caption">
+                    <h2>Discover Amazing Products</h2>
+                    <p>Explore our handcrafted items and latest electronics.</p>
+                    <a href="#products-section" class="btn btn-secondary">Shop Now</a>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="images/hero-slide2.jpg" alt="Electronics Sale">
+                <div class="carousel-caption">
+                    <h2>Big Savings on Electronics</h2>
+                    <p>Up to 30% off on keyboards, headphones, and more!</p>
+                    <a href="products.html?category=electronics" class="btn btn-secondary">View Electronics</a>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="images/hero-slide3.jpg" alt="Home Decor Collection">
+                <div class="carousel-caption">
+                    <h2>Transform Your Home</h2>
+                    <p>Unique wall art and decorative items for every space.</p>
+                    <a href="products.html?category=home-decor" class="btn btn-secondary">Shop Home Decor</a>
+                </div>
+            </div>
+        </div>
+
+        <button class="carousel-control-prev" aria-label="Previous Slide">
+            <span class="arrow left-arrow"></span>
+        </button>
+        <button class="carousel-control-next" aria-label="Next Slide">
+            <span class="arrow right-arrow"></span>
+        </button>
+
+        <div class="carousel-indicators">
+            <span class="indicator active" data-slide-to="0"></span>
+            <span class="indicator" data-slide-to="1"></span>
+            <span class="indicator" data-slide-to="2"></span>
+        </div>
+    </section>
+    <section id="products" class="products-section section-padding">
+        <div class="container">
+            <h2 class="section-title reveal-on-scroll">Featured Products</h2>
+            <p class="section-subtitle reveal-on-scroll">Handpicked items just for you.</p>
+
+            <div class="my-8 flex flex-col md:flex-row gap-4 items-center justify-center">
+                <input type="text" id="search-input" placeholder="Search products..." class="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-color w-full md:w-1/2 lg:w-1/3">
+                <select id="category-filter" class="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-color w-full md:w-1/2 lg:w-1/4">
+                    <option value="all">All Categories</option>
+                    <option value="accessories">Accessories</option>
+                    <option value="home-decor">Home Decor</option>
+                    <option value="bags">Bags</option>
+                    <option value="electronics">Electronics</option>
+                </select>
+            </div>
+            
+            <div class="sort-control">
+                <label for="sort-by">Sort by:</label>
+                <select id="sort-by" class="form-select">
+                    <option value="default">Default</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name-asc">Name: A-Z</option>
+                    <option value="name-desc">Name: Z-A</option>
+                </select>
+            </div>
+
+            <div class="product-grid" id="product-list-container">
+            </div>
+
+            <div class="text-center reveal-on-scroll">
+                <a href="products.html" class="btn btn-link">View All Products &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section section-padding bg-light reveal-on-scroll">
+        <div class="container text-center">
+            <h2 class="section-title">Behind the Curtains at SHOPRIT</h2>
+            <p class="section-subtitle">Discover our passion for unique finds and a customer experience that truly stands out.</p>
+
+            <div class="about-content">
+                <div class="about-text-block">
+                    <h3>Our Journey: From Idea to Your Doorstep</h3>
+                    <p>
+                        SHOPRIT wasn't just built overnight; it grew from a simple obsession: finding and sharing products that spark joy. We started with a vision to create a marketplace where quality meets creativity, where every item tells a story, and where shopping feels less like a chore and more like a discovery. We've traveled (virtually and literally) to curate a collection that we genuinely believe in, ensuring each piece is not only beautiful but also built to last.
+                    </p>
+                    <p>
+                        We're a team of enthusiasts dedicated to bringing you an experience, not just a transaction. From the moment you browse to the day your package arrives, our focus is on delighting you. Your trust is our greatest reward, and we strive to earn it with every curated item and every interaction.
+                    </p>
+                </div>
+            
+                <div class="about-values-block">
+                    <h3>Our Promise to You</h3>
+                    <ul>
+                        <li>
+                            <h4><span class="highlight">Curated Excellence</span></h4>
+                            <p>Only the best make it to SHOPRIT. We rigorously select products for their quality, uniqueness, and value.</p>
+                        </li>
+                        <li>
+                            <h4><span class="highlight">Seamless Experience</span></h4>
+                            <p>From easy Browse to secure checkout and swift delivery, we ensure your journey with us is smooth and enjoyable.</p>
+                        </li>
+                        <li>
+                            <h4><span class="highlight">Passionate Support</span></h4>
+                            <p>Have a question? Need assistance? Our dedicated team is here to help, ensuring your satisfaction.</p>
+                        </li>
+                    </ul>
+                </div>
+            
+                <div class="about-cta-block mt-4">
+                    <p class="text-lg font-semibold text-gray-700 mb-6">Ready to find your next favorite thing?</p>
+                    <a href="products.html" class="btn btn-primary">Start Your Discovery</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section section-padding bg-light">
+        <div class="container text-center">
+            <h2 class="section-title reveal-on-scroll">What Our Customers Say</h2>
+            <div class="testimonial-carousel reveal-on-scroll">
+                <p class="testimonial-text">"SHOPRIT has the best quality products and unbeatable customer service. Highly recommend!"</p>
+                <p class="testimonial-author">- Jane Doe, Happy Customer</p>
+            </div>
+            <a href="#contact" class="btn btn-primary mt-4 reveal-on-scroll">Get in Touch</a>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section section-padding reveal-on-scroll bg-light">
+        <div class="container text-center">
+            <h2 class="section-title">Get in Touch</h2>
+            <p class="section-subtitle">We'd love to hear from you! Send us a message or reach out using the details below.</p>
+            
+            <div class="contact-content grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 items-start">
+                <div class="contact-info-block text-left p-6 bg-white rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Contact Information</h3>
+                    <p class="text-lg text-gray-700 mb-2">
+                        <strong class="font-semibold">Email:</strong> <a href="mailto:support@shoprit.com" class="text-primary-color hover:underline">hemangkhatri11@gmail.com</a>
+                    </p>
+                    <p class="text-lg text-gray-700 mb-2">
+                        <strong class="font-semibold">Phone:</strong> <a href="tel:+1234567890" class="text-primary-color hover:underline">6367586580</a>
+                    </p>
+                    <p class="text-lg text-gray-700">
+                        <strong class="font-semibold">Address:</strong> sector-5, pratap nagar, sanganer, jaipur
+                    </p>
+                </div>
+
+                <div class="contact-form-block p-6 bg-white rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Send Us a Message</h3>
+                    <form class="contact-form">
+                        <div class="mb-4">
+                            <label for="name" class="sr-only">Your Name</label>
+                            <input type="text" id="name" name="name" placeholder="Your Name" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-color" required />
+                        </div>
+                        <div class="mb-4">
+                            <label for="email" class="sr-only">Your Email</label>
+                            <input type="email" id="email" name="email" placeholder="Your Email" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-color" required />
+                        </div>
+                        <div class="mb-4">
+                            <label for="subject" class="sr-only">Subject</label>
+                            <input type="text" id="subject" name="subject" placeholder="Subject" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-color" />
+                        </div>
+                        <div class="mb-6">
+                            <label for="message" class="sr-only">Your Message</label>
+                            <textarea id="message" name="message" placeholder="Your Message" rows="5" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-color" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full">Send Message</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="map-container mt-12 mb-8 rounded-lg shadow-md overflow-hidden" style="height: 400px; width: 100%;">
+                <iframe
+                    src="https://maps.google.com/maps?q=Jaipur%2C%20Rajasthan%2C%20India&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                    width="100%"
+                    height="100%"
+                    style="border:0;"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col about-col">
+                    <h3>SHOPRIT</h3>
+                    <p>Your one-stop destination for quality products and exceptional service. We're passionate about what we do.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li> 
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect With Us</h4>
+                    <ul class="social-links flex space-x-4 mt-2">
+                        <li>
+                            <a href="https://www.instagram.com/shoprit.io/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-instagram">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                                <span class="sr-only">Instagram</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/in/hemang-khatri-846b14325/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin">
+                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                                <span class="sr-only">LinkedIn</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" rel="noopener noreferrer" class="text-white hover:text-accent-light transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                                <span class="sr-only">Facebook</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year"></span> SHOPRIT. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Authentication Modal Structure -->
+    <div class="auth-modal-overlay" id="authModal">
+        <div class="auth-modal-content">
+            <span class="auth-modal-close" id="closeAuthModal">&times;</span>
+            <div class="auth-modal-tabs">
+                <div class="auth-modal-tab active" data-form="login">Login</div>
+                <div class="auth-modal-tab" data-form="register">Register</div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="modalLoginForm" class="auth-modal-form active">
+                <h2>Login to Your Account</h2>
+                <div class="form-group">
+                    <label for="modalLoginEmail">Email Address</label>
+                    <input type="email" id="modalLoginEmail" placeholder="your@example.com" required>
+                    <div class="error-message" id="modalLoginEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="modalLoginPassword">Password</label>
+                    <input type="password" id="modalLoginPassword" placeholder="********" required>
+                    <div class="error-message" id="modalLoginPasswordError"></div>
+                </div>
+                <button type="submit" class="btn-auth">Login</button>
+                <div class="auth-links">
+                    <p><a href="#">Forgot Password?</a></p>
+                </div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="modalRegisterForm" class="auth-modal-form">
+                <h2>Create Your Account</h2>
+                <div class="form-group">
+                    <label for="modalRegisterName">Your Name</label>
+                    <input type="text" id="modalRegisterName" placeholder="John Doe" required>
+                    <div class="error-message" id="modalRegisterNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="modalRegisterEmail">Email Address</label>
+                    <input type="email" id="modalRegisterEmail" placeholder="your@example.com" required>
+                    <div class="error-message" id="modalRegisterEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="modalRegisterPassword">Password</label>
+                    <input type="password" id="modalRegisterPassword" placeholder="********" required>
+                    <div class="error-message" id="modalRegisterPasswordError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="modalConfirmPassword">Confirm Password</label>
+                    <input type="password" id="modalConfirmPassword" placeholder="********" required>
+                    <div class="error-message" id="modalConfirmPasswordError"></div>
+                </div>
+                <button type="submit" class="btn-auth">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="scripts/cart.js"></script>
+    <script src="scripts/script.js"></script>
+</body>
+</html>

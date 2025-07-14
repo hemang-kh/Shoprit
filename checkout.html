@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout - SHOPRIT</title>
+    <!-- Tailwind CSS CDN for styling - Added for modern utilities -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles/style.css" />
+    <!-- Poppins font from Google Fonts for a modern, elegant look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles for body and main content */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+        }
+        main {
+            flex-grow: 1; /* Allows main content to expand and push footer down */
+        }
+        .section-padding {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .section-title {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            color: #2d3748; /* gray-800 */
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Checkout Container Layout */
+        .checkout-container {
+            display: flex;
+            flex-wrap: wrap; /* Allows wrapping on smaller screens */
+            gap: 2rem; /* Spacing between sections */
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 1rem; /* Padding for the container itself */
+        }
+
+        /* Individual Sections within Checkout */
+        .checkout-details-section {
+            flex: 2 1 60%; /* Takes more space on large screens, minimum width 300px */
+            min-width: 300px;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .checkout-summary-section {
+            flex: 1 1 30%; /* Takes less space, but grows as needed, minimum width 280px */
+            min-width: 280px;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Form Group Styling for Input Fields */
+        .form-group {
+            margin-bottom: 1rem; /* Space between form groups */
+        }
+        .form-group label {
+            display: block; /* Label on its own line */
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568; /* Gray text for labels */
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%; /* Full width inputs */
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0; /* Light gray border */
+            border-radius: 0.375rem; /* Slightly rounded corners */
+            font-size: 1rem;
+            color: #2d3748; /* Dark text for input */
+            transition: border-color 0.2s; /* Smooth transition on focus */
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none; /* Remove default outline */
+            border-color: #4c51bf; /* Indigo border on focus */
+            box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.2); /* Light indigo glow on focus */
+        }
+
+        /* Place Order Button Styling */
+        .place-order-btn {
+            background-color: #4c51bf; /* indigo-600 */
+            color: #ffffff;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+            width: 100%; /* Full width button */
+            margin-top: 1.5rem;
+        }
+        .place-order-btn:hover {
+            background-color: #3f478a; /* darker indigo on hover */
+        }
+        .place-order-btn:disabled {
+            background-color: #a0aec0; /* gray-400 when disabled */
+            cursor: not-allowed;
+        }
+
+        /* Cart Summary Item Styling */
+        .cart-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #4a5568; /* Gray text for summary items */
+        }
+        .cart-summary-total {
+            border-top: 1px solid #e2e8f0; /* Separator line for total */
+            padding-top: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748; /* Dark text for total */
+        }
+
+        /* Message box styles for toast notifications (consistent across site) */
+        .message-box {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: white;
+            text-align: center;
+            z-index: 1000;
+            transition: all 0.3s ease-in-out;
+            opacity: 0;
+        }
+        .message-box.scale-100 {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+        .message-box.bg-green-500 { background-color: #22c55e; }
+        .message-box.bg-red-500 { background-color: #ef4444; }
+        .message-box.bg-orange-500 { background-color: #f97316; }
+        .message-box.bg-blue-500 { background-color: #3b82f6; }
+    </style>
+</head>
+<body>
+
+    <!-- Main Header Section (Consistent with index.html for site navigation) -->
+    <header class="main-header">
+        <div class="container">
+            <a href="index.html" class="logo">SHOPRIT<span>.</span></a>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="index.html#products" class="nav-link">Products</a></li>
+                    <li class="nav-item"><a href="cart.html" class="nav-link">Cart</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link current">Checkout</a></li>
+                    <!-- Cart Icon with dynamic count - Ensure it's present and functional -->
+                    <li class="nav-item cart-icon">
+                        <a href="cart.html" class="nav-link">
+                            🛒 Cart <span class="cart-count" id="cart-item-count">(0)</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main class="section-padding">
+        <div class="container">
+            <h2 class="section-title">Checkout</h2>
+
+            <div class="checkout-container">
+                <div class="checkout-details-section">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Delivery Information</h3>
+                    <form id="checkout-form">
+                        <!-- Full Name (from user's 'name' field) -->
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" placeholder="John Doe" required>
+                        </div>
+                        <!-- Email (from user's 'email' field) -->
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="john.doe@example.com" required>
+                        </div>
+                        <!-- Phone (from user's 'phone' field) -->
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="+91 98765 43210" required>
+                        </div>
+                        <!-- Address Line 1 (from user's 'address' field) -->
+                        <div class="form-group">
+                            <label for="addressLine1">Address Line 1</label>
+                            <input type="text" id="addressLine1" placeholder="123 Main St" required>
+                        </div>
+                        <!-- Address Line 2 (Optional) - Added from my previous version -->
+                        <div class="form-group">
+                            <label for="addressLine2">Address Line 2 (Optional)</label>
+                            <input type="text" id="addressLine2" placeholder="Apt 4B">
+                        </div>
+                        <!-- City, State (user's existing fields, grouped for layout) -->
+                        <div class="form-group flex gap-4">
+                            <div class="flex-1">
+                                <label for="city">City</label>
+                                <input type="text" id="city" placeholder="Anytown" required>
+                            </div>
+                            <div class="flex-1">
+                                <label for="state">State / Province</label>
+                                <input type="text" id="state" placeholder="NY" required>
+                            </div>
+                        </div>
+                        <!-- ZIP Code (from user's 'zip' field) -->
+                        <div class="form-group">
+                            <label for="zipCode">Zip / Postal Code</label>
+                            <input type="text" id="zipCode" placeholder="10001" required>
+                        </div>
+                        <!-- Country (from user's 'country' field) -->
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <input type="text" id="country" placeholder="India" required>
+                        </div>
+
+                        <!-- Place Order button -->
+                        <button type="submit" id="place-order-btn" class="place-order-btn mt-4">Place Order</button>
+                    </form>
+                </div>
+
+                <div class="checkout-summary-section">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Order Summary</h3>
+                    <!-- Cart items summary will be loaded here by checkout.js -->
+                    <div id="checkout-cart-summary">
+                        <p class="text-gray-600 text-center">Your cart is empty.</p>
+                    </div>
+                    <div class="cart-summary-total">
+                        <span>Total:</span>
+                        <span id="checkout-total">$0.00</span>
+                    </div>
+                    <!-- The Place Order button is moved outside the form here to match the new layout structure,
+                         and its ID is used to connect with JS. The form's submit action will be handled by JS. -->
+                </div>
+            </div>
+
+            <!-- Confirmation message (from user's code) -->
+            <div id="confirmation-message" class="mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded" style="display:none;">
+                <h3 class="text-xl font-bold mb-2">🎉 Thank you! Your order has been placed.</h3>
+                <p>We'll contact you soon with tracking details.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Main Footer Section (Consistent with index.html) -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col about-col">
+                    <h3>SHOPRIT</h3>
+                    <p>Your one-stop destination for quality products and exceptional service. We're passionate about what we do.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect With Us</h4>
+                    <ul>
+                        <li><a href="https://www.instagram.com/shoprit.io/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                        <li><a href="https://www.instagram.com/hem.ang_12.0/" target="_blank" rel="noopener noreferrer">Instagram(public)</a></li>
+                        <li><a href="https://www.linkedin.com/in/hemang-khatri-846b14325/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year"></span> SHOPRIT. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- IMPORTANT: cart.js MUST be loaded before checkout.js -->
+    <script src="scripts/script.js"></script>
+    <script src="scripts/cart.js"></script>
+    <script src="scripts/checkout.js"></script>
+</body>
+</html>
